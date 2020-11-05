@@ -2,7 +2,10 @@ import pulumi
 import pulumi_aws as aws
 import json
 
-# get the vpc
+"""
+Get methods detect existing resources we might want to reference.
+In this case, I defined my VPC in another Pulumi project, so I retrieve it
+"""
 vpc = aws.ec2.get_vpc(
     filters=[
         aws.ec2.GetVpcFilterArgs(
@@ -12,7 +15,9 @@ vpc = aws.ec2.get_vpc(
     ],
 )
 
-# get the public subnets in the vpc
+"""
+I also want to retrieve my public subnets from the VPC I created
+"""
 subnets = aws.ec2.get_subnet_ids(
     vpc_id=vpc.id,
     filters=[aws.ec2.GetSubnetIdsFilterArgs(name="tag:type", values=["public"])],
@@ -58,7 +63,7 @@ alb_target_group = aws.lb.TargetGroup(
     opts=pulumi.ResourceOptions(
         depends_on=[alb],
         parent=alb,
-    )
+    ),
 )
 
 # Create an ALB listerner that listes on port 80
@@ -74,7 +79,7 @@ alb_web_listener = aws.lb.Listener(
     ],
     opts=pulumi.ResourceOptions(
         parent=alb,
-    )
+    ),
 )
 
 # Create an IAM role that can be used by our service's task.
@@ -101,21 +106,15 @@ rpa = aws.iam.RolePolicyAttachment(
     policy_arn="arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
     opts=pulumi.ResourceOptions(
         parent=role,
-    )
+    ),
 )
 
-### Here we add the Docker imahge
-
-
 ### Start ECS cluster stuff!
+cluster = aws.ecs.Cluster("lbriggs")
 
-# Create an ECS cluster to run a container-based service.
-cluster = aws.ecs.Cluster("cluster")
-
-# Spin up a load balanced service running our container image.
 task_definition = aws.ecs.TaskDefinition(
     "app-task",
-    family="fargate-task-definition",
+    family="fargate-task-defintion",
     cpu="256",
     memory="512",
     network_mode="awsvpc",
@@ -133,31 +132,30 @@ task_definition = aws.ecs.TaskDefinition(
         ]
     ),
     opts=pulumi.ResourceOptions(
-        parent = cluster,
-    )
+        parent=cluster,
+    ),
 )
 
-service = aws.ecs.Service(
-    "app-svc",
-    cluster=cluster.arn,
-    desired_count=3,
-    launch_type="FARGATE",
-    task_definition=task_definition.arn,
-    network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
-        assign_public_ip=True,
-        subnets=subnets.ids,
-        security_groups=[security_group.id],
+service = (
+    aws.ecs.Service(
+        "app-svc",
+        cluster=cluster.arn,
+        desired_count=3,
+        launch_type="FARGATE",
+        task_definition=task_definition.arn,
+        network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
+            assign_public_ip=True,
+            subnets=subnets.ids,
+            security_groups=[security_group.id],
+        ),
+        load_balancers=[
+            aws.ecs.ServiceLoadBalancerArgs(
+                target_group_arn=alb_target_group.arn,
+                container_name="my-app",
+                container_port=80,
+            )
+        ],
     ),
-    load_balancers=[
-        aws.ecs.ServiceLoadBalancerArgs(
-            target_group_arn=alb_target_group.arn,
-            container_name="my-app",
-            container_port=80,
-        )
-    ],
-    opts=pulumi.ResourceOptions(
-        parent = cluster,
-    )
 )
 
 pulumi.export("url", alb.dns_name)

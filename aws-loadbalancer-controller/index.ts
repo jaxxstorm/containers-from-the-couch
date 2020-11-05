@@ -19,5 +19,5 @@ const loadbalancer = new lb.AWSLoadBalancerController("lb", {
     cluster: {
         name: "lbrlabs-eks-dev"
     },
-    installCRD: false
+    installCRD: true
 })
