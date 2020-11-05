@@ -12,7 +12,7 @@ vpc = aws.ec2.get_vpc(
     ],
 )
 
-# get the public subnets in thevpc
+# get the public subnets in the vpc
 subnets = aws.ec2.get_subnet_ids(
     vpc_id=vpc.id,
     filters=[aws.ec2.GetSubnetIdsFilterArgs(name="tag:type", values=["public"])],
