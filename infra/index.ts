@@ -44,6 +44,7 @@ const cluster = new eks.Cluster(`vpc-${stack}`, {
     createOidcProvider: true,
 });
 
+export const vpcId = vpc.id
 export const clusterName = cluster.eksCluster.name
 export const kubeconfig = cluster.kubeconfig
 export const clusterOidcProvider = cluster.core.oidcProvider?.url
