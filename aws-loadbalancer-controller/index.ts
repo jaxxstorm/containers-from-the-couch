@@ -14,7 +14,6 @@ const provider = new k8s.Provider("k8s", { kubeconfig: kubeconfig });
 
 const foo = new lb.AWSLoadBalancerController('foo', {
     namespace: {
-        create: true,
         name: "aws-load-balancer-controller"
     },
     cluster: {
