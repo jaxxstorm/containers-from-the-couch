@@ -5,6 +5,7 @@ import * as eks from "@pulumi/eks";
 
 const stack = pulumi.getStack()
 
+const clusterTag = `kubernetes.io/cluster/lbrlabs-eks-${stack}`
 
 // this defines a valid VPC that can be used for EKS
 const vpc = new awsx.ec2.Vpc(`vpc-${stack}`, {
@@ -13,14 +14,14 @@ const vpc = new awsx.ec2.Vpc(`vpc-${stack}`, {
         {
             type: "private",
             tags: {
-                "kubernetes.io/cluster/cluster-name": `lbrlabs-eks-${stack}`,
+                [clusterTag]: "owned",
                 "kubernetes.io/role/internal-elb": "1",
             }
         },
         {
             type: "public",
             tags: {
-                "kubernetes.io/cluster/cluster-name": `lbrlabs-eks-${stack}`,
+                [clusterTag]: "owned",
                 "kubernetes.io/role/elb": "1",
             }
         }],
