@@ -1,0 +1,13 @@
+{
+    "name": "aws-loadbalancer-controller",
+    "devDependencies": {
+        "@types/node": "^10.0.0"
+    },
+    "dependencies": {
+        "@jaxxstorm/pulumi-aws-loadbalancercontroller": "0.0.3-alpha.1604287182",
+        "@pulumi/aws": "^3.0.0",
+        "@pulumi/awsx": "^0.22.0",
+        "@pulumi/kubernetes": "^2.6.3",
+        "@pulumi/pulumi": "^2.0.0"
+    }
+}

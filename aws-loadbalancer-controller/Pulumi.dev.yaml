@@ -1,0 +1,4 @@
+config:
+  aws-loadbalancer-controller:oidcArn: arn:aws:iam::609316800003:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/9FCA2FB851DCD99C78FE291C3F83BCFD
+  aws-loadbalancer-controller:oidcUrl: oidc.eks.us-west-2.amazonaws.com/id/9FCA2FB851DCD99C78FE291C3F83BCFD
+  aws:region: us-west-2
