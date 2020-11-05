@@ -12,15 +12,12 @@ const cluster = new pulumi.StackReference(`jaxxstorm/infra/${stack}`);
 const kubeconfig = cluster.getOutput("kubeconfig").apply(k => JSON.stringify(k))
 const provider = new k8s.Provider("k8s", { kubeconfig: kubeconfig });
 
-const foo = new lb.AWSLoadBalancerController('foo', {
+const loadbalancer = new lb.AWSLoadBalancerController("lb", {
     namespace: {
         name: "aws-load-balancer-controller"
     },
     cluster: {
-        name: "lbrlabs-eks-dev",
+        name: "lbrlabs-eks-dev"
     },
-    app: {
-        version: "v2.0.0",
-    },
-    installCRD: true
-}, { provider: provider })
+    installCRD: false
+})
